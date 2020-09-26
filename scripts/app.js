@@ -15,7 +15,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // intro slider
 
-    function sliderIntro() {
+    function sliderIntro(sliderWrapper, arrowPrev, arrowNext, slider, slides) {
         const introSliderContainer = document.querySelector(".intro-carousel-container"),
               introArrowPrev = document.querySelector(".intro-carousel-container .fas.fa-arrow-left"),
               introArrowNext = document.querySelector(".intro-carousel-container .fas.fa-arrow-right"),
@@ -26,7 +26,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
         let width = introSlides[0].offsetWidth;
          
-        console.log(width);
         introSlider.style.transform = `translateX(${-width * counter}px)`;
 
         introSlides.forEach(slide => {
@@ -34,22 +33,63 @@ window.addEventListener("DOMContentLoaded", () => {
         });
 
         // creating indicators
-        const indicators = document.createElement("ol");
-        indicators.classList.add("intro-carousel-indicators");
-        introSliderContainer.prepend(indicators);
+        function creatingIndicators(slides, sliderContainer) {
+            const indicators = document.createElement("ol");
+            indicators.classList.add("intro-carousel-indicators");
+            sliderContainer.prepend(indicators);
 
-        const dots = [];
+            const dots = [];
 
-        for (let i = 0; i < introSlides.length - 2; i++) {
-            const dot = document.createElement("li");
-            dot.classList.add("intro-carousel-indicators-dot");
-            dot.setAttribute('data-slide-to', i + 1);
-            if (i == 0) {
-                dot.classList.add("active");
+            for (let i = 0; i < slides.length - 2; i++) {
+                const dot = document.createElement("li");
+                dot.classList.add("intro-carousel-indicators-dot");
+                dot.setAttribute('data-slide-to', i + 1);
+                if (i == 0) {
+                    dot.classList.add("active");
+                }
+                indicators.append(dot);
+                dots.push(dot);
             }
-            indicators.append(dot);
-            dots.push(dot);
+
+            return dots;
         }
+
+        let sliderDots = creatingIndicators(introSlides, introSliderContainer);
+
+        function nextDot(sliderDots, slides) {
+            sliderDots.forEach(dot => {
+                dot.classList.remove("active");
+            });
+
+            if(counter < slides.length - 1) {
+                sliderDots[counter - 1].classList.add("active");
+            }
+        }
+
+        function prevDot(sliderDots) {
+            sliderDots.forEach(dot => {
+                dot.classList.remove("active");
+            });
+
+            if (counter > 0) {
+                sliderDots[counter - 1].classList.add("active");
+            }
+        }
+
+        function removeAddActiveDot(dots) {
+            dots.forEach(dot => {
+                dot.classList.remove("active");
+            });
+            dots[counter - 1].classList.add("active");
+        }
+
+        function dotSliderTranslate(slider, event) {
+            const slideTo = event.target.getAttribute("data-slide-to");
+            counter = slideTo;
+            introSlider.style.transition = 'transform 0.5s ease';
+            slider.style.transform = `translateX(${-width * counter}px)`;
+        }
+        
 
         introArrowNext.addEventListener("click", () => {
             if(counter >= introSlides.length - 1) return;
@@ -57,13 +97,7 @@ window.addEventListener("DOMContentLoaded", () => {
             introSlider.style.transition = 'transform 0.5s ease';
             introSlider.style.transform = `translateX(${-width * counter}px)`;
 
-            dots.forEach(dot => {
-                dot.classList.remove("active");
-            });
-
-            if(counter < introSlides.length - 1) {
-                dots[counter - 1].classList.add("active");
-            }
+            nextDot(sliderDots, introSlides);
         });
 
         introArrowPrev.addEventListener("click", () => {
@@ -72,13 +106,7 @@ window.addEventListener("DOMContentLoaded", () => {
             introSlider.style.transition = 'transform 0.5s ease';
             introSlider.style.transform = `translateX(${-width * counter}px)`;
 
-            dots.forEach(dot => {
-                dot.classList.remove("active");
-            });
-
-            if (counter > 0) {
-                dots[counter - 1].classList.add("active");
-            }
+            prevDot(sliderDots, counter);
             
         });
 
@@ -86,30 +114,27 @@ window.addEventListener("DOMContentLoaded", () => {
             if(introSlides[counter].id === "lastClone") {
                 introSlider.style.transition = 'none';
                 counter = introSlides.length - 2;
-                dots[counter - 1].classList.add("active");
+                sliderDots[counter - 1].classList.add("active");
                 introSlider.style.transform = `translateX(${-width * counter}px)`;
                 
             }
             if(introSlides[counter].id === "firstClone") {
                 introSlider.style.transition = 'none';
                 counter = introSlides.length - counter;
-                dots[counter - 1].classList.add("active");
+                sliderDots[counter - 1].classList.add("active");
                 introSlider.style.transform = `translateX(${-width * counter}px)`;
             }
         });
 
-        dots.forEach(dot => {
+        sliderDots.forEach(dot => {
             dot.addEventListener("click", (e) => {
-                const slideTo = e.target.getAttribute("data-slide-to");
-                counter = slideTo;
-                introSlider.style.transform = `translateX(${-width * counter}px)`;
-
-                dots.forEach(dot => {
-                    dot.classList.remove("active");
-                });
-                dots[counter - 1].classList.add("active");
+                dotSliderTranslate(introSlider, e);
+                removeAddActiveDot(sliderDots);       
             });
         });
+
+
+        
 
     }
 
