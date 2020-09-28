@@ -15,20 +15,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // intro slider
 
-    function sliderIntro(sliderWrapper, arrowPrev, arrowNext, slider, slides) {
-        const introSliderContainer = document.querySelector(".intro-carousel-container"),
-              introArrowPrev = document.querySelector(".intro-carousel-container .fas.fa-arrow-left"),
-              introArrowNext = document.querySelector(".intro-carousel-container .fas.fa-arrow-right"),
-              introSlider = document.querySelector(".intro-carousel-slides"),
-              introSlides = document.querySelectorAll(".intro-carousel-slide");
+    function sliderSettings(contSel, arrowPrevSel, arrowNextSel, sliderSel, slidesSel) {
+        const sliderContainer = document.querySelector(contSel),
+              arrowPrev = document.querySelector(arrowPrevSel),
+              arrowNext = document.querySelector(arrowNextSel),
+              slider = document.querySelector(sliderSel),
+              slides = document.querySelectorAll(slidesSel);
 
         let counter = 1;
 
-        let width = introSlides[0].offsetWidth;
+        let width = slides[0].offsetWidth;
          
-        introSlider.style.transform = `translateX(${-width * counter}px)`;
+        slider.style.transform = `translateX(${-width * counter}px)`;
 
-        introSlides.forEach(slide => {
+        slides.forEach(slide => {
             slide.style.width = width;
         });
 
@@ -54,7 +54,7 @@ window.addEventListener("DOMContentLoaded", () => {
             return dots;
         }
 
-        let sliderDots = creatingIndicators(introSlides, introSliderContainer);
+        let sliderDots = creatingIndicators(slides, sliderContainer);
 
         function nextDot(sliderDots, slides) {
             sliderDots.forEach(dot => {
@@ -86,59 +86,65 @@ window.addEventListener("DOMContentLoaded", () => {
         function dotSliderTranslate(slider, event) {
             const slideTo = event.target.getAttribute("data-slide-to");
             counter = slideTo;
-            introSlider.style.transition = 'transform 0.5s ease';
+            slider.style.transition = 'transform 0.5s ease';
             slider.style.transform = `translateX(${-width * counter}px)`;
         }
         
 
-        introArrowNext.addEventListener("click", () => {
-            if(counter >= introSlides.length - 1) return;
+        arrowNext.addEventListener("click", () => {
+            if(counter >= slides.length - 1) return;
             counter++;
-            introSlider.style.transition = 'transform 0.5s ease';
-            introSlider.style.transform = `translateX(${-width * counter}px)`;
+            slider.style.transition = 'transform 0.5s ease';
+            slider.style.transform = `translateX(${-width * counter}px)`;
 
-            nextDot(sliderDots, introSlides);
+            nextDot(sliderDots, slides);
         });
 
-        introArrowPrev.addEventListener("click", () => {
+        arrowPrev.addEventListener("click", () => {
             if(counter <= 0) return;
             counter--;
-            introSlider.style.transition = 'transform 0.5s ease';
-            introSlider.style.transform = `translateX(${-width * counter}px)`;
+            slider.style.transition = 'transform 0.5s ease';
+            slider.style.transform = `translateX(${-width * counter}px)`;
 
             prevDot(sliderDots, counter);
             
         });
 
-        introSlider.addEventListener("transitionend", () => {
-            if(introSlides[counter].id === "lastClone") {
-                introSlider.style.transition = 'none';
-                counter = introSlides.length - 2;
+        slider.addEventListener("transitionend", () => {
+            if(slides[counter].id === "lastClone") {
+                slider.style.transition = 'none';
+                counter = slides.length - 2;
                 sliderDots[counter - 1].classList.add("active");
-                introSlider.style.transform = `translateX(${-width * counter}px)`;
+                slider.style.transform = `translateX(${-width * counter}px)`;
                 
             }
-            if(introSlides[counter].id === "firstClone") {
-                introSlider.style.transition = 'none';
-                counter = introSlides.length - counter;
+            if(slides[counter].id === "firstClone") {
+                slider.style.transition = 'none';
+                counter = slides.length - counter;
                 sliderDots[counter - 1].classList.add("active");
-                introSlider.style.transform = `translateX(${-width * counter}px)`;
+                slider.style.transform = `translateX(${-width * counter}px)`;
             }
         });
 
         sliderDots.forEach(dot => {
             dot.addEventListener("click", (e) => {
-                dotSliderTranslate(introSlider, e);
+                dotSliderTranslate(slider, e);
                 removeAddActiveDot(sliderDots);       
             });
         });
-
-
-        
-
     }
 
-    sliderIntro();
+    sliderSettings(".intro-carousel-container",
+                ".intro-carousel-container .fas.fa-arrow-left",
+                ".intro-carousel-container .fas.fa-arrow-right",
+                ".intro-carousel-slides",
+                ".intro-carousel-slide");
+
+    sliderSettings(".works-carousel-wrapper",
+    ".works-carousel-wrapper .fa-arrow-circle-left",
+    ".works-carousel-wrapper .fa-arrow-circle-right",
+    ".works-slides",
+    ".works-slide");
 
     // window.addEventListener(`resize`, () => {
     //     sliderIntro();
