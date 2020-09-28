@@ -83,19 +83,22 @@ window.addEventListener("DOMContentLoaded", () => {
             dots[counter - 1].classList.add("active");
         }
 
+        function sliderMoveTransition(slider) {
+            slider.style.transition = 'transform 0.5s ease';
+            slider.style.transform = `translateX(${-width * counter}px)`;
+        }
+
         function dotSliderTranslate(slider, event) {
             const slideTo = event.target.getAttribute("data-slide-to");
             counter = slideTo;
-            slider.style.transition = 'transform 0.5s ease';
-            slider.style.transform = `translateX(${-width * counter}px)`;
+            sliderMoveTransition(slider);
         }
         
 
         arrowNext.addEventListener("click", () => {
             if(counter >= slides.length - 1) return;
             counter++;
-            slider.style.transition = 'transform 0.5s ease';
-            slider.style.transform = `translateX(${-width * counter}px)`;
+            sliderMoveTransition(slider)
 
             nextDot(sliderDots, slides);
         });
@@ -103,8 +106,7 @@ window.addEventListener("DOMContentLoaded", () => {
         arrowPrev.addEventListener("click", () => {
             if(counter <= 0) return;
             counter--;
-            slider.style.transition = 'transform 0.5s ease';
-            slider.style.transform = `translateX(${-width * counter}px)`;
+            sliderMoveTransition(slider);
 
             prevDot(sliderDots, counter);
             
@@ -140,15 +142,83 @@ window.addEventListener("DOMContentLoaded", () => {
                 ".intro-carousel-slides",
                 ".intro-carousel-slide");
 
-    sliderSettings(".works-carousel-wrapper",
-    ".works-carousel-wrapper .fa-arrow-circle-left",
-    ".works-carousel-wrapper .fa-arrow-circle-right",
-    ".works-slides",
-    ".works-slide");
+    // sliderSettings(".works-carousel-wrapper",
+    // ".works-carousel-wrapper .fa-arrow-circle-left",
+    // ".works-carousel-wrapper .fa-arrow-circle-right",
+    // ".works-slides",
+    // ".works-slide");
 
     // window.addEventListener(`resize`, () => {
     //     sliderIntro();
     // }, false);
+
+    // smooth scroll
+    function smoothScroll(target, duration) {
+        // how much pxls i scrolled from viewport
+        const startPosition = window.pageYOffset;
+        let socialHeight = document.querySelector(".social").offsetHeight;
+        let headerHeight = document.querySelector(".header").offsetHeight;
+        let introHeight = document.querySelector(".intro-carousel-container").offsetHeight;
+    
+        const height = socialHeight + headerHeight + introHeight;
+        const distance = height - startPosition;
+        // this will be used for requestAnimationFrame
+        let startTime = null;
+    
+        function animation(currentTime) {
+            if(startTime === null) startTime = currentTime;
+            let timeElapsed = currentTime - startTime;
+         
+            const run = easeOutSine(timeElapsed, startPosition, distance, duration);
+            window.scrollTo(0, run);
+    
+            if(timeElapsed < duration) {
+                requestAnimationFrame(animation);
+            }
+        }
+    
+        const easeOutSine = function (t, b, c, d) {
+            return c * Math.sin(t/d * (Math.PI/2)) + b;
+        };
+        
+        // loop callback function for 60 fps
+        requestAnimationFrame(animation);
+    }
+    
+    const introScrollBtn = document.querySelector(".intro-scrollDown");
+    introScrollBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        smoothScroll(".section.about", 1000);
+    });
+
+    // burger
+
+    const navSlide = () => {
+        const burger= document.querySelector(".burger"),
+              nav = document.querySelector(".nav"),
+              navLinks = document.querySelectorAll(".nav-list");
+        
+        burger.addEventListener("click", () => {
+            nav.classList.toggle("active");
+            
+            navLinks.forEach((link, index) => {
+                if(link.style.animation) {
+                    link.style.animation = '';
+                } else {
+                    link.style.animation = `linkFade 0.5s ease forwards ${index / 7 + .3}s`;
+                }
+            });
+        });
+    }
+
+    navSlide();
+
+    // scroll to element - smooth scroll library
+
+    const scroll = new SmoothScroll('.nav a[href*="#"]', {
+        speed: 800,
+        speedAsDuration: true
+    });
 
 });
 
